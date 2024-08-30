@@ -101,7 +101,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.route('/api/analyze', methods=['POST'])
 def analyze():
@@ -109,6 +109,7 @@ def analyze():
     text = data['headlines']
     
     if not isinstance(text, list) or not text:
+        app.logger.error(f"Invalid input: {text}")
         return jsonify({'error': 'Invalid input, expected a non-empty list of headlines'}), 400
     
     try:
@@ -121,6 +122,7 @@ def analyze():
         
         return jsonify(results)
     except Exception as e:
+        app.logger.error(f"Error during sentiment analysis: {e}")
         return jsonify({'error': 'An error occurred during sentiment analysis'}), 500
 
 if __name__ == '__main__':
