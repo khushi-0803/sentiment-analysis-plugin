@@ -34,8 +34,5 @@ After installation, you can use the plugin to analyze the sentiment of headlines
 2. Click on the Sentiment Analysis Plugin icon in the Chrome toolbar.
 3. The plugin will extract the headlines and classify their sentiment as either positive or negative, displaying the results in a popup.
 
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
 ## Project Link
 [https://github.com/khushi-0803/sentiment-analysis-plugin](https://github.com/khushi-0803/sentiment-analysis-plugin)
