@@ -2,15 +2,14 @@
 function extractHeadlines() {
     let headlines = [];
     const headlineTags = [
-        'a', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',             // Standalone headline tags
-        'h1 a', 'h2 a', 'h3 a', 'h4 a', 'h5 a', 'h6 a', // Headlines within <a> tags
-        'figcaption', 'a.headline', 'a.title', 'a.news-link', 'a.story' // Specific <a> tags with headline classes
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'h1 a', 'h2 a', 'h3 a', 'h4 a', 'h5 a', 'h6 a',
+        'figcaption', 'a.headline', 'a.title', 'a.news-link', 'a.story',
     ];
 
     headlineTags.forEach(tag => {
         const elements = document.querySelectorAll(tag);
         console.log(`Selector: ${tag}, Elements found: ${elements.length}`);
-        
         elements.forEach(element => {
             const headline = element.innerText.trim();
             const wordCount = headline.split(/\s+/).length;
@@ -28,65 +27,48 @@ function extractHeadlines() {
 // Function to apply sentiment styles to headlines
 function applySentimentStyles(sentiments) {
     console.log('Applying sentiments:', sentiments);
-
-    // Initialize counters
-    let positiveCount = 0;
-    let negativeCount = 0;
- 
-    // Count the number of positive and negative sentiments
-    sentiments.forEach((sentiment) => {
-        if (sentiment.sentiment === 'positive') {
-            positiveCount++;
-        } else if (sentiment.sentiment === 'negative') {
-            negativeCount++;
-        }
-    });
-
-    // Calculate the percentages
-    const totalCount = positiveCount + negativeCount;
-    const positivePercentage = (positiveCount / totalCount) * 100;
-    const negativePercentage = (negativeCount / totalCount) * 100;
-
-    // Log the percentages
-    console.log(`Positive: ${positivePercentage.toFixed(2)}%, Negative: ${negativePercentage.toFixed(2)}%`);
-
     window.headlineElements.forEach((item) => {
         const sentiment = sentiments.find(s => s.headline === item.text);
         if (sentiment) {
             item.element.style.color = sentiment.sentiment === 'positive' ? 'green' : 'red';
         }
-        else {
-            console.log('No sentiment found for headline: ${item.text}');
-        }
     });
-
-    // Display the percentages on the page or in the popup
-    displaySentimentPercentages(positivePercentage, negativePercentage);
 }
 
-// Function to display the sentiment percentages
-function displaySentimentPercentages(positivePercentage, negativePercentage) {
-    // Create or select an element to display the percentages
-    let percentageElement = document.getElementById('sentiment-percentages');
-    
-    if (!percentageElement) {
-        percentageElement = document.createElement('div');
-        percentageElement.id = 'sentiment-percentages';
-        percentageElement.style.position = 'fixed';
-        percentageElement.style.bottom = '10px';
-        percentageElement.style.right = '10px';
-        percentageElement.style.backgroundColor = 'white';
-        percentageElement.style.border = '1px solid black';
-        percentageElement.style.padding = '10px';
-        percentageElement.style.zIndex = '1000';
-        document.body.appendChild(percentageElement);
+// Handle messages from popup script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === 'analyze') {
+        extractHeadlines();
+    } else if (message.type === 'sentiments') {
+        applySentimentStyles(message.sentiments);
     }
 
-    // Update the content with the calculated percentages
-    percentageElement.innerHTML = `
-        <strong>Sentiment Analysis Results:</strong><br>
-        Positive: ${positivePercentage.toFixed(2)}%<br>
-        Negative: ${negativePercentage.toFixed(2)}%
-    `;
-}
+    const positivePercentageElement = document.getElementById('positive-percentage');
+    const negativePercentageElement = document.getElementById('negative-percentage');
+    if (positivePercentageElement && negativePercentageElement) {
+            positivePercentageElement.textContent = `Positive: ${message.percentages.positive}%`;
+            negativePercentageElement.textContent = `Negative: ${message.percentages.negative}%`;
+    }
+});
 
+// // Function to find percentage of positive and negative headlines
+// function calculateSentimentPercentages(sentiments) {
+//     const total = sentiments.length;
+//     if (total === 0) {
+//         return { positive: 0, negative: 0 };
+//     }
+
+//     const counts = sentiments.reduce((acc, sentiment) => {
+//         if (sentiment.sentiment === 'positive') {
+//             acc.positive += 1;
+//         } else if (sentiment.sentiment === 'negative') {
+//             acc.negative += 1;
+//         }
+//         return acc;
+//     }, { positive: 0, negative: 0 });
+
+//     const positivePercentage = (counts.positive / total) * 100;
+//     const negativePercentage = (counts.negative / total) * 100;
+
+//     return { positive: positivePercentage.toFixed(2), negative: negativePercentage.toFixed(2) };
+// }
