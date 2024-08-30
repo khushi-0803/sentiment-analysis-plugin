@@ -7,18 +7,21 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
 
-    // // Retrieve and display headlines with sentiments
-    // chrome.storage.local.get('headlines',function(result) {
-    //     console.log('Headlines with sentiments retrieved in popup:', result);
-    //     const headlines = result.headlines || [];
-    //     const list = document.getElementById('headline-list');
-    //     // list.innerHTML = '';
-    //     headlines.forEach(item => {
-    //         const li = document.createElement('li');
-    //         li.textContent = '${item.headline} - Sentiment: ${item.sentiment}';
-    //         list.appendChild(li);
-    //     });
+    // Retrieve and display headlines with sentiments
+    chrome.storage.local.get('headlines',function(result) {
+        console.log('Headlines with sentiments retrieved in popup:', result);
+        const headlines = result.headlines || [];
+        if (headlines.length > 0) {
+            const list = document.getElementById('headline-list');
+            list.innerHTML = '';  // Clear previous entries if any
+            headlines.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.headline} - Sentiment: ${item.sentiment}`;
+                list.appendChild(li);
+            });
+        } else {
+            console.log('No headlines found or data retrieval failed.');
+        }
 
-
-    // });
+    });
 });
